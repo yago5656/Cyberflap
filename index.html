@@ -2,139 +2,273 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onda de Partículas Interativa Avançada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyberpunk Flappy Particle</title>
+    <!-- Importando a fonte Orbitron que aparece no seu código -->
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
-            background-color: #060613;
+            background-color: #000000;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         canvas {
             display: block;
-            width: 100%;
-            height: 100%;
+            box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
+            border: 2px solid #00fff2;
+        }
+        /* Estilização da scrollbar caso necessário */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060613;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff007f;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvasParticulas"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        const canvas = document.getElementById('canvasParticulas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Configuração do estado do mouse
-        const mouse = {
-            x: null,
-            y: null,
-            raio: 120 // Raio de afastamento das partículas
-        };
-
-        // Captura o movimento do mouse
-        window.addEventListener('mousemove', (event) => {
-            mouse.x = event.x;
-            mouse.y = event.y;
-        });
-
-        // Limpa a posição do mouse quando ele sai da tela
-        window.addEventListener('mouseout', () => {
-            mouse.x = null;
-            mouse.y = null;
-        });
-
-        // Ajusta o tamanho do canvas dinamicamente
+        // Configuração de Tela (Proporção Mobile/Arcade 9:16)
         function ajustarTela() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const alturaJanela = window.innerHeight;
+            canvas.height = alturaJanela;
+            canvas.width = Math.min(window.innerWidth, alturaJanela * (9 / 16));
         }
-        window.addEventListener('resize', ajustarTela);
         ajustarTela();
+        window.addEventListener('resize', ajustarTela);
 
-        let tempo = 0;
-        const listaParticulas = [];
-        const quantidadeParticulas = 140;
-
-        // Inicialização das partículas matemáticas
-        for (let i = 0; i < quantidadeParticulas; i++) {
-            listaParticulas.push({
-                x: (canvas.width / quantidadeParticulas) * i,
-                baseY: canvas.height / 2,
-                atualX: (canvas.width / quantidadeParticulas) * i,
-                atualY: canvas.height / 2,
-                tamanho: Math.random() * 3.5 + 1.5,
-                velocidade: 0.015 + (i * 0.0001),
-                fase: i * 0.08
+        // --- SISTEMA DE PARTÍCULAS DO FUNDO (CYBERPUNK WAVE) ---
+        let tempoFundo = 0;
+        const partículasFundo = [];
+        const totalPartículas = 60;
+        for (let i = 0; i < totalPartículas; i++) {
+            partículasFundo.push({
+                x: (canvas.width / totalPartículas) * i,
+                baseY: canvas.height * 0.7, // Posicionado na parte inferior
+                velocidade: 0.02 + (i * 0.0002),
+                fase: i * 0.15
             });
         }
 
-        function renderizar() {
-            // Cria o efeito de rastro neon escuro
-            ctx.fillStyle = 'rgba(6, 6, 19, 0.12)';
+        function desenharFundoCyberpunk() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Efeito de rastro/blur
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            tempoFundo++;
 
-            tempo++;
+            partículasFundo.forEach((p, index) => {
+                const angulo = (tempoFundo * p.velocidade) + p.fase;
+                const y = p.baseY + Math.sin(angulo) * 60 * Math.cos(angulo * 0.5);
+                const matiz = (tempoFundo * 0.5 + index * 4) % 360;
 
-            listaParticulas.forEach((p, index) => {
-                // 1. Cálculo da oscilação natural da onda (Seno + Cosseno)
-                const angulo = (tempo * p.velocidade) + p.fase;
-                const alvoY = p.baseY + Math.sin(angulo) * 130 * Math.cos(angulo * 0.4);
-                const alvoX = p.x;
-
-                // 2. Interação com o mouse (Cálculo de repulsão vetorial)
-                if (mouse.x !== null && mouse.x !== undefined) {
-                    const dx = mouse.x - p.atualX;
-                    const dy = mouse.y - p.atualY;
-                    const distancia = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distancia < mouse.raio) {
-                        // Calcula a força baseada na proximidade
-                        const forca = (mouse.raio - distancia) / mouse.raio;
-                        const anguloMouse = Math.atan2(dy, dx);
-                        
-                        // Empurra a partícula na direção oposta ao mouse
-                        p.atualX -= Math.cos(anguloMouse) * forca * 8;
-                        p.atualY -= Math.sin(anguloMouse) * forca * 8;
-                    }
-                }
-
-                // Retorno suave da partícula para a sua posição original da onda (Efeito Mola)
-                p.atualX += (alvoX - p.atualX) * 0.08;
-                p.atualY += (alvoY - p.atualY) * 0.08;
-
-                // 3. Sistema de cores dinâmicas (Espectro cíclico)
-                const matizCor = (tempo * 0.4 + index * 2.5) % 360;
-                ctx.fillStyle = `hsla(${matizCor}, 85%, 60%, 0.95)`;
-
-                // Desenha o ponto da partícula
+                ctx.fillStyle = `hsla(${matiz}, 100%, 60%, 0.4)`;
                 ctx.beginPath();
-                ctx.arc(p.atualX, p.atualY, p.tamanho, 0, Math.PI * 2);
+                ctx.arc(p.x, y, 2, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 4. Desenha as linhas de conexão entre os pontos vizinhos
                 if (index > 0) {
-                    const vizinho = listaParticulas[index - 1];
-                    ctx.strokeStyle = `hsla(${matizCor}, 60%, 45%, 0.18)`;
-                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = `hsla(${matiz}, 100%, 50%, 0.05)`;
                     ctx.beginPath();
-                    ctx.moveTo(vizinho.atualX, vizinho.atualY);
-                    ctx.lineTo(p.atualX, p.atualY);
+                    ctx.moveTo(partículasFundo[index-1].x, partículasFundo[index-1].y_antigo || y);
+                    ctx.lineTo(p.x, y);
                     ctx.stroke();
                 }
+                p.y_antigo = y;
             });
-
-            requestAnimationFrame(renderizar);
         }
 
-        // Inicia o loop de animação
-        renderizar();
-    </script>
-</body>
-</html>
+        // --- ENTIADES DO JOGO FLAPPY BIRD ---
+        const game = {
+            gravidade: 0.4,
+            pulo: -7,
+            score: 0,
+            recorde: 0,
+            estado: 'START', // START, PLAYING, GAMEOVER
+            velocidadeObstaculos: 3
+        };
+
+        const passaro = {
+            x: 80,
+            y: canvas.height / 2,
+            raio: 14,
+            velocidadeY: 0,
+            resgatar() {
+                this.y = canvas.height / 2;
+                this.velocidadeY = 0;
+            },
+            pular() {
+                this.velocidadeY = game.pulo;
+            },
+            atualizar() {
+                if (game.estado === 'PLAYING') {
+                    this.velocidadeY += game.gravidade;
+                    this.y += this.velocidadeY;
+
+                    // Colisão com teto ou chão
+                    if (this.y + this.raio > canvas.height || this.y - this.raio < 0) {
+                        finalizarJogo();
+                    }
+                } else if (game.estado === 'START') {
+                    // Flutuação boba na tela de início
+                    this.y = canvas.height / 2 + Math.sin(tempoFundo * 0.05) * 15;
+                }
+            },
+            desenhar() {
+                // Desenha a nave/pássaro Cyberpunk (Triângulo Neon)
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00fff2';
+                ctx.fillStyle = '#00fff2';
+                ctx.beginPath();
+                ctx.moveTo(this.x + 18, this.y);
+                ctx.lineTo(this.x - 12, this.y - 12);
+                ctx.lineTo(this.x - 12, this.y + 12);
+                ctx.closePath();
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reseta sombra
+            }
+        };
+
+        const canos = {
+            lista: [],
+            espacoEntre: 160,
+            largura: 60,
+            timer: 0,
+            gerar() {
+                const alturaMin = 50;
+                const alturaMax = canvas.height - this.espacoEntre - alturaMin - 100;
+                const alturaSuperior = Math.floor(Math.random() * (alturaMax - alturaMin + 1)) + alturaMin;
+
+                this.lista.push({
+                    x: canvas.width,
+                    topo: alturaSuperior,
+                    fundo: canvas.height - (alturaSuperior + this.espacoEntre),
+                    passou: false
+                });
+            },
+            atualizar() {
+                if (game.estado !== 'PLAYING') return;
+
+                this.timer++;
+                if (this.timer % 100 === 0) this.gerar();
+
+                this.lista.forEach((cano, index) => {
+                    cano.x -= game.velocidadeObstaculos;
+
+                    // Colisões AABB com os canos Cyberpunk
+                    if (
+                        passaro.x + passaro.raio > cano.x &&
+                        passaro.x - passaro.raio < cano.x + this.largura
+                    ) {
+                        if (passaro.y - passaro.raio < cano.topo || passaro.y + passaro.raio > canvas.height - cano.fundo) {
+                            finalizarJogo();
+                        }
+                    }
+
+                    // Marcar ponto
+                    if (!cano.passou && cano.x + this.largura < passaro.x) {
+                        game.score++;
+                        cano.passou = true;
+                        if (game.score > game.recorde) game.recorde = game.score;
+                    }
+
+                    // Remove canos fora da tela
+                    if (cano.x + this.largura < 0) this.lista.splice(index, 1);
+                });
+            },
+            desenhar() {
+                this.lista.forEach(cano => {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#ff007f';
+                    ctx.fillStyle = 'rgba(255, 0, 127, 0.2)';
+                    ctx.strokeStyle = '#ff007f';
+                    ctx.lineWidth = 2;
+
+                    // Cano Superior
+                    ctx.fillRect(cano.x, 0, this.largura, cano.topo);
+                    ctx.strokeRect(cano.x, -5, this.largura, cano.topo + 5);
+
+                    // Cano Inferior
+                    ctx.fillRect(cano.x, canvas.height - cano.fundo, this.largura, cano.fundo);
+                    ctx.strokeRect(cano.x, canvas.height - cano.fundo, this.largura, cano.fundo + 5);
+                    
+                    ctx.shadowBlur = 0;
+                });
+            }
+        };
+
+        function finalizarJogo() {
+            game.estado = 'GAMEOVER';
+        }
+
+        function resetarJogo() {
+            game.score = 0;
+            canos.lista = [];
+            canos.timer = 0;
+            passaro.resgatar();
+            game.estado = 'PLAYING';
+        }
+
+        // --- CONTROLES (Toque e Teclado) ---
+        function interagir() {
+            if (game.estado === 'START') {
+                resetarJogo();
+            } else if (game.estado === 'PLAYING') {
+                passaro.pular();
+            } else if (game.estado === 'GAMEOVER') {
+                game.estado = 'START';
+            }
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.code === 'Space') interagir(); });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); interagir(); });
+
+        // --- LOOP PRINCIPAL DE RENDERIZAÇÃO ---
+        function loop() {
+            desenharFundoCyberpunk();
+
+            canos.atualizar();
+            canos.desenhar();
+
+            passaro.atualizar();
+            passaro.desenhar();
+
+            // Interface de Texto (HUD) usando a fonte Orbitron do seu projeto
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+
+            if (game.estado === 'START') {
+                ctx.font = 'bold 24px "Orbitron"';
+                ctx.fillStyle = '#00fff2';
+                ctx.fillText('CYBER FLAPPY', canvas.width / 2, canvas.height * 0.35);
+                ctx.font = '14px "Orbitron"';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('TOQUE PARA INICIAR', canvas.width / 2, canvas.height * 0.6);
+            } else if (game.estado === 'PLAYING') {
+                ctx.font = 'bold 32px "Orbitron"';
+                ctx.fillText(game.score, canvas.width / 2, 80);
+            } else if (game.estado === 'GAMEOVER') {
+                ctx.font = 'bold 28px "Orbitron"';
+                ctx.fillStyle = '#ff007f';
+                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height * 0.35);
