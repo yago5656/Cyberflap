@@ -1,274 +1,321 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyberpunk Flappy Particle</title>
-    <!-- Importando a fonte Orbitron que aparece no seu código -->
-    <link href="https://googleapis.com" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background-color: #000000;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            font-family: 'Orbitron', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        canvas {
-            display: block;
-            box-shadow: 0 0 30px rgba(0, 255, 242, 0.2);
-            border: 2px solid #00fff2;
-        }
-        /* Estilização da scrollbar caso necessário */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #060613;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ff007f;
-            border-radius: 4px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pacman Solar System</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:radial-gradient(circle,#1a1d35,#05060d 75%);
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+/*==============================
+ESTRELAS
+==============================*/
+
+.stars{
+    position:fixed;
+    inset:0;
+}
+
+.star{
+    position:absolute;
+    background:#fff;
+    border-radius:50%;
+    animation:blink 2s infinite alternate;
+}
+
+@keyframes blink{
+    from{opacity:.2;}
+    to{opacity:1;}
+}
+
+/*==============================
+UNIVERSO
+==============================*/
+
+.universe{
+    position:relative;
+    width:700px;
+    height:700px;
+}
+
+/*==============================
+PACMAN
+==============================*/
+
+.pacman{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:100px;
+    height:100px;
+    transform:translate(-50%,-50%);
+    animation:rotatePac 12s linear infinite;
+}
+
+.top,
+.bottom{
+    position:absolute;
+    width:100px;
+    height:50px;
+    background:#FFD700;
+    box-shadow:0 0 20px gold;
+}
+
+.top{
+    border-radius:100px 100px 0 0;
+    transform-origin:bottom center;
+    animation:mouthTop .22s infinite alternate ease-in-out;
+}
+
+.bottom{
+    top:50px;
+    border-radius:0 0 100px 100px;
+    transform-origin:top center;
+    animation:mouthBottom .22s infinite alternate ease-in-out;
+}
+
+@keyframes mouthTop{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(-35deg);}
+}
+
+@keyframes mouthBottom{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(35deg);}
+}
+
+@keyframes rotatePac{
+    from{
+        transform:translate(-50%,-50%) rotate(0deg);
+    }
+    to{
+        transform:translate(-50%,-50%) rotate(360deg);
+    }
+}
+
+/*==============================
+ORBITAS
+==============================*/
+
+.orbit{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    border:1px dashed rgba(255,255,255,.12);
+    border-radius:50%;
+}
+
+.o1{
+    width:180px;
+    height:180px;
+    animation:spin 4s linear infinite;
+}
+
+.o2{
+    width:280px;
+    height:280px;
+    animation:spin 6s linear infinite reverse;
+}
+
+.o3{
+    width:380px;
+    height:380px;
+    animation:spin 8s linear infinite;
+}
+
+.o4{
+    width:500px;
+    height:500px;
+    animation:spin 10s linear infinite reverse;
+}
+
+@keyframes spin{
+    from{
+        transform:translate(-50%,-50%) rotate(0deg);
+    }
+    to{
+        transform:translate(-50%,-50%) rotate(360deg);
+    }
+}
+
+/*==============================
+FANTASMAS
+==============================*/
+
+.ghost{
+    position:absolute;
+    left:50%;
+    top:-24px;
+    transform:translateX(-50%);
+    width:48px;
+    height:48px;
+    border-radius:24px 24px 8px 8px;
+    animation:float .7s infinite alternate ease-in-out;
+}
+
+.red{background:#ff3b3b;}
+.pink{background:#ff66cc;}
+.blue{background:#31d8ff;}
+.orange{background:#ffad33;}
+
+@keyframes float{
+    from{
+        transform:translateX(-50%) translateY(-3px);
+    }
+    to{
+        transform:translateX(-50%) translateY(3px);
+    }
+}
+
+/* olhos */
+
+.eye{
+    position:absolute;
+    width:10px;
+    height:14px;
+    background:white;
+    border-radius:50%;
+    top:10px;
+}
+
+.left{
+    left:10px;
+}
+
+.right{
+    right:10px;
+}
+
+.pupil{
+    position:absolute;
+    width:4px;
+    height:6px;
+    background:#0f55ff;
+    border-radius:50%;
+    bottom:2px;
+    right:2px;
+}
+
+/* ondas inferiores */
+
+.wave{
+    position:absolute;
+    bottom:-4px;
+    width:100%;
+    height:10px;
+    background:
+    radial-gradient(circle at 6px 0,#05060d 5px,transparent 6px),
+    radial-gradient(circle at 18px 0,#05060d 5px,transparent 6px),
+    radial-gradient(circle at 30px 0,#05060d 5px,transparent 6px),
+    radial-gradient(circle at 42px 0,#05060d 5px,transparent 6px);
+}
+
+.title{
+    position:absolute;
+    top:25px;
+    width:100%;
+    text-align:center;
+    color:white;
+    font-size:28px;
+    letter-spacing:4px;
+    text-shadow:0 0 12px cyan;
+}
+
+</style>
 </head>
 <body>
 
-    <canvas id="gameCanvas"></canvas>
+<div class="stars"></div>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+<div class="title">
+PACMAN SOLAR SYSTEM
+</div>
 
-        // Configuração de Tela (Proporção Mobile/Arcade 9:16)
-        function ajustarTela() {
-            const alturaJanela = window.innerHeight;
-            canvas.height = alturaJanela;
-            canvas.width = Math.min(window.innerWidth, alturaJanela * (9 / 16));
-        }
-        ajustarTela();
-        window.addEventListener('resize', ajustarTela);
+<div class="universe">
 
-        // --- SISTEMA DE PARTÍCULAS DO FUNDO (CYBERPUNK WAVE) ---
-        let tempoFundo = 0;
-        const partículasFundo = [];
-        const totalPartículas = 60;
-        for (let i = 0; i < totalPartículas; i++) {
-            partículasFundo.push({
-                x: (canvas.width / totalPartículas) * i,
-                baseY: canvas.height * 0.7, // Posicionado na parte inferior
-                velocidade: 0.02 + (i * 0.0002),
-                fase: i * 0.15
-            });
-        }
+<div class="pacman">
+    <div class="top"></div>
+    <div class="bottom"></div>
+</div>
 
-        function desenharFundoCyberpunk() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Efeito de rastro/blur
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            tempoFundo++;
+<div class="orbit o1">
+    <div class="ghost red">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+        <div class="wave"></div>
+    </div>
+</div>
 
-            partículasFundo.forEach((p, index) => {
-                const angulo = (tempoFundo * p.velocidade) + p.fase;
-                const y = p.baseY + Math.sin(angulo) * 60 * Math.cos(angulo * 0.5);
-                const matiz = (tempoFundo * 0.5 + index * 4) % 360;
+<div class="orbit o2">
+    <div class="ghost pink">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+        <div class="wave"></div>
+    </div>
+</div>
 
-                ctx.fillStyle = `hsla(${matiz}, 100%, 60%, 0.4)`;
-                ctx.beginPath();
-                ctx.arc(p.x, y, 2, 0, Math.PI * 2);
-                ctx.fill();
+<div class="orbit o3">
+    <div class="ghost blue">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+        <div class="wave"></div>
+    </div>
+</div>
 
-                if (index > 0) {
-                    ctx.strokeStyle = `hsla(${matiz}, 100%, 50%, 0.05)`;
-                    ctx.beginPath();
-                    ctx.moveTo(partículasFundo[index-1].x, partículasFundo[index-1].y_antigo || y);
-                    ctx.lineTo(p.x, y);
-                    ctx.stroke();
-                }
-                p.y_antigo = y;
-            });
-        }
+<div class="orbit o4">
+    <div class="ghost orange">
+        <div class="eye left"><div class="pupil"></div></div>
+        <div class="eye right"><div class="pupil"></div></div>
+        <div class="wave"></div>
+    </div>
+</div>
 
-        // --- ENTIADES DO JOGO FLAPPY BIRD ---
-        const game = {
-            gravidade: 0.4,
-            pulo: -7,
-            score: 0,
-            recorde: 0,
-            estado: 'START', // START, PLAYING, GAMEOVER
-            velocidadeObstaculos: 3
-        };
+</div>
 
-        const passaro = {
-            x: 80,
-            y: canvas.height / 2,
-            raio: 14,
-            velocidadeY: 0,
-            resgatar() {
-                this.y = canvas.height / 2;
-                this.velocidadeY = 0;
-            },
-            pular() {
-                this.velocidadeY = game.pulo;
-            },
-            atualizar() {
-                if (game.estado === 'PLAYING') {
-                    this.velocidadeY += game.gravidade;
-                    this.y += this.velocidadeY;
+<script>
 
-                    // Colisão com teto ou chão
-                    if (this.y + this.raio > canvas.height || this.y - this.raio < 0) {
-                        finalizarJogo();
-                    }
-                } else if (game.estado === 'START') {
-                    // Flutuação boba na tela de início
-                    this.y = canvas.height / 2 + Math.sin(tempoFundo * 0.05) * 15;
-                }
-            },
-            desenhar() {
-                // Desenha a nave/pássaro Cyberpunk (Triângulo Neon)
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#00fff2';
-                ctx.fillStyle = '#00fff2';
-                ctx.beginPath();
-                ctx.moveTo(this.x + 18, this.y);
-                ctx.lineTo(this.x - 12, this.y - 12);
-                ctx.lineTo(this.x - 12, this.y + 12);
-                ctx.closePath();
-                ctx.fill();
-                ctx.shadowBlur = 0; // Reseta sombra
-            }
-        };
+// Estrelas
 
-        const canos = {
-            lista: [],
-            espacoEntre: 160,
-            largura: 60,
-            timer: 0,
-            gerar() {
-                const alturaMin = 50;
-                const alturaMax = canvas.height - this.espacoEntre - alturaMin - 100;
-                const alturaSuperior = Math.floor(Math.random() * (alturaMax - alturaMin + 1)) + alturaMin;
+const stars=document.querySelector(".stars");
 
-                this.lista.push({
-                    x: canvas.width,
-                    topo: alturaSuperior,
-                    fundo: canvas.height - (alturaSuperior + this.espacoEntre),
-                    passou: false
-                });
-            },
-            atualizar() {
-                if (game.estado !== 'PLAYING') return;
+for(let i=0;i<300;i++){
 
-                this.timer++;
-                if (this.timer % 100 === 0) this.gerar();
+    const star=document.createElement("div");
 
-                this.lista.forEach((cano, index) => {
-                    cano.x -= game.velocidadeObstaculos;
+    star.className="star";
 
-                    // Colisões AABB com os canos Cyberpunk
-                    if (
-                        passaro.x + passaro.raio > cano.x &&
-                        passaro.x - passaro.raio < cano.x + this.largura
-                    ) {
-                        if (passaro.y - passaro.raio < cano.topo || passaro.y + passaro.raio > canvas.height - cano.fundo) {
-                            finalizarJogo();
-                        }
-                    }
+    const s=Math.random()*3+1;
 
-                    // Marcar ponto
-                    if (!cano.passou && cano.x + this.largura < passaro.x) {
-                        game.score++;
-                        cano.passou = true;
-                        if (game.score > game.recorde) game.recorde = game.score;
-                    }
+    star.style.width=s+"px";
+    star.style.height=s+"px";
 
-                    // Remove canos fora da tela
-                    if (cano.x + this.largura < 0) this.lista.splice(index, 1);
-                });
-            },
-            desenhar() {
-                this.lista.forEach(cano => {
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#ff007f';
-                    ctx.fillStyle = 'rgba(255, 0, 127, 0.2)';
-                    ctx.strokeStyle = '#ff007f';
-                    ctx.lineWidth = 2;
+    star.style.left=Math.random()*100+"vw";
+    star.style.top=Math.random()*100+"vh";
 
-                    // Cano Superior
-                    ctx.fillRect(cano.x, 0, this.largura, cano.topo);
-                    ctx.strokeRect(cano.x, -5, this.largura, cano.topo + 5);
+    star.style.animationDuration=(Math.random()*2+1)+"s";
 
-                    // Cano Inferior
-                    ctx.fillRect(cano.x, canvas.height - cano.fundo, this.largura, cano.fundo);
-                    ctx.strokeRect(cano.x, canvas.height - cano.fundo, this.largura, cano.fundo + 5);
-                    
-                    ctx.shadowBlur = 0;
-                });
-            }
-        };
+    stars.appendChild(star);
 
-        function finalizarJogo() {
-            game.estado = 'GAMEOVER';
-        }
+}
 
-        function resetarJogo() {
-            game.score = 0;
-            canos.lista = [];
-            canos.timer = 0;
-            passaro.resgatar();
-            game.estado = 'PLAYING';
-        }
+</script>
 
-        // --- CONTROLES (Toque e Teclado) ---
-        function interagir() {
-            if (game.estado === 'START') {
-                resetarJogo();
-            } else if (game.estado === 'PLAYING') {
-                passaro.pular();
-            } else if (game.estado === 'GAMEOVER') {
-                game.estado = 'START';
-            }
-        }
-
-        window.addEventListener('keydown', (e) => { if (e.code === 'Space') interagir(); });
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); interagir(); });
-
-        // --- LOOP PRINCIPAL DE RENDERIZAÇÃO ---
-        function loop() {
-            desenharFundoCyberpunk();
-
-            canos.atualizar();
-            canos.desenhar();
-
-            passaro.atualizar();
-            passaro.desenhar();
-
-            // Interface de Texto (HUD) usando a fonte Orbitron do seu projeto
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'center';
-
-            if (game.estado === 'START') {
-                ctx.font = 'bold 24px "Orbitron"';
-                ctx.fillStyle = '#00fff2';
-                ctx.fillText('CYBER FLAPPY', canvas.width / 2, canvas.height * 0.35);
-                ctx.font = '14px "Orbitron"';
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText('TOQUE PARA INICIAR', canvas.width / 2, canvas.height * 0.6);
-            } else if (game.estado === 'PLAYING') {
-                ctx.font = 'bold 32px "Orbitron"';
-                ctx.fillText(game.score, canvas.width / 2, 80);
-            } else if (game.estado === 'GAMEOVER') {
-                ctx.font = 'bold 28px "Orbitron"';
-                ctx.fillStyle = '#ff007f';
-                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height * 0.35);
+</body>
+</html>
